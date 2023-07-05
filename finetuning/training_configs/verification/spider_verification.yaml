@@ -1,0 +1,103 @@
+seed_everything: 333
+trainer:
+  gpus: 8
+  gradient_clip_val: 1.0
+  default_root_dir: &exp_name results/debug-tmp
+  # val_check_interval: 0.5
+  check_val_every_n_epoch: 1
+  max_steps: &max_steps 10000
+  # progress_bar_refresh_rate: 1
+  num_sanity_val_steps: 0
+  log_every_n_steps: 1
+  logger+:
+    - class_path: finetuning.lightning_modules.patches.patched_loggers.PatchedWandbLogger
+      init_args:
+        entity: niansong1996
+        project: cot-codegen
+        save_dir: *exp_name
+        name: *exp_name
+        log_model: False
+        save_code: True
+        offline: False
+  callbacks+:
+    - class_path: pytorch_lightning.callbacks.model_checkpoint.ModelCheckpoint
+      init_args:
+        monitor: rerank_acc
+        mode: max
+        filename: '{step}-{rerank_acc:.4f}-{binary_acc:.4f}'
+        save_top_k: 3
+        save_last: True
+    - class_path: pytorch_lightning.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: step
+    - class_path: pytorch_lightning.callbacks.progress.TQDMProgressBar
+      init_args:
+        refresh_rate: 1
+        
+  accelerator: gpu
+  # strategy: deepspeed_stage_2
+  strategy: ddp_find_unused_parameters_false
+  # precision: 16
+  # accumulate_grad_batches: 2
+
+model:
+  class_path: lightning_modules.models.seq2seq_verification_model.EndVerificationModel
+  init_args:
+    transformer_model_name: &transformer niansong1996/lever-spider-codex
+    executor_cls: execution.executors.SpiderExecutor
+    categorize_func: execution.spider_execution.spider_categorize_complexity
+    categorize_metric: rerank_acc
+    category_list: ["JOIN", "NESTED", "COMPOUND", "SIMPLE"]
+    max_gen_len: 16
+    sampling_temp: 0.001
+    # loss choices
+    softmax_loss: false
+    avg_loss_per_example: true
+    contrastive: true
+    mml: false
+    exec_result_agg: false
+    eval_exec_result_agg: true
+    # exec_result_agg_type: voting
+    # filtering_top_k: 5
+    # filtering_prob_threshold: 0.2
+    gen_prob_coef: 1.0
+    # max_generation_batches: 10
+    max_batch_size: 20
+    gradient_ckpt: true
+    # eval_greedy_search: true
+    optimizer:
+      init_args: 
+        lr: 5.0e-5
+        # lr: 0.0
+        betas: 
+          - 0.9
+          - 0.999
+        eps: 1.0e-8
+        weight_decay: 0.1
+    lr_scheduler:
+      name: linear
+      init_args:
+        num_warmup_steps: 100
+        num_training_steps: *max_steps
+
+data:
+  class_path: lightning_modules.datasets.spider_reader.SQLEndVerificationDataModule
+  init_args:
+    transformer_model_name: *transformer
+    batch_size: 1
+    val_batch_size: 2
+    # train_max_instances: 200
+    # val_max_instances: 100
+    train_set_init_args:
+      file_path: data/spider/spider_codex_verification_train.jsonl
+    val_set_init_args:
+      file_path: data/spider/spider_codex_verification_dev.jsonl
+    set_common_init_args:
+      include_schema: false
+      include_code: true
+      include_exec_result: true
+      # ignore_no_negative_example: true
+      # ignore_no_positive_example: true
+      # use_decomp_sql: false
+      # use_final_exec_result_only: true
+      state_str_func: state_simple_str_func

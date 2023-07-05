@@ -1,0 +1,66 @@
+## Cristina, John, Clarissa and Sarah want to give their mother a photo album for her birthday. Cristina brings 7 photos, John brings 10 photos and Sarah brings 9 photos. If the photo album has 40 slots available, how many photos does Clarissa need to bring in order to complete the photo album?
+n_photo_cristina = 7
+n_photo_john = 10
+n_photo_sarah = 9
+n_photo_total = n_photo_cristina + n_photo_john + n_photo_sarah
+n_slots = 40
+n_slots_left = n_slots - n_photo_total
+answer = n_slots_left
+
+## Katy, Wendi, and Carrie went to a bread-making party.  Katy brought three 5-pound bags of flour.  Wendi brought twice as much flour as Katy, but Carrie brought 5 pounds less than the amount of flour Wendi brought.  How much more flour, in ounces, did Carrie bring than Katy?
+pound_flour_katy = 3 * 5
+pound_flour_wendi = pound_flour_katy * 2
+pound_flour_carrie = pound_flour_wendi - 5
+pound_diff_carrie_katy = pound_flour_carrie - pound_flour_katy
+ounce_diff_carrie_katy = pound_diff_carrie_katy * 16
+answer = ounce_diff_carrie_katy
+
+## James takes 2 Tylenol tablets that are 375 mg each, every 6 hours.  How many mg does he take a day?
+mg_tylenol_per_tablet = 375
+mg_tylenol_taken_each_time = 2 * mg_tylenol_per_tablet
+hours_per_day = 24
+times_per_day = hours_per_day / 6
+mg_each_day = mg_tylenol_taken_each_time * times_per_day
+answer = mg_each_day
+
+## Kyle bakes 60 cookies and 32 brownies. Kyle eats 2 cookies and 2 brownies. Kyle's mom eats 1 cookie and 2 brownies. If Kyle sells a cookie for $1 and a brownie for $1.50, how much money will Kyle make if he sells all of his baked goods?
+n_cookies = 60
+n_brownies = 32
+n_cookies_left_after_kyle = n_cookies - 2
+n_brownies_left_after_kyle = n_brownies - 2
+n_cookies_left_after_kyle_mom = n_cookies_left_after_kyle - 1
+n_brownies_left_after_kyle_mom = n_brownies_left_after_kyle - 2
+money_earned_kyle = n_cookies_left_after_kyle_mom * 1 + n_brownies_left_after_kyle_mom * 1.5
+answer = money_earned_kyle
+
+## There were 63 Easter eggs in the yard.  Hannah found twice as many as Helen.  How many Easter eggs did Hannah find?
+n_easter_eggs = 63
+unit_times = 2
+total_units = unit_times + 1
+n_easter_eggs_per_unit = n_easter_eggs / total_units
+n_easter_eggs_helen = n_easter_eggs_per_unit * 1
+n_easter_eggs_hannah = n_easter_eggs_per_unit * 2
+answer = n_easter_eggs_hannah
+
+## Ethan is reading a sci-fi book that has 360 pages. He read 40 pages on Saturday morning and another 10 pages at night. The next day he read twice the total pages as on Saturday. How many pages does he have left to read?
+n_pages = 360
+total_page_saturday = 40 + 10
+total_page_next_day = total_page_saturday * 2
+total_pages_read = total_page_saturday + total_page_next_day
+n_pages_left = n_pages - total_pages_read
+answer = n_pages_left
+
+## A library has a number of books. 35% of them are intended for children and 104 of them are for adults. How many books are in the library?
+percent_books_for_children = 0.35
+percent_books_for_adults = 1.0 - percent_books_for_children
+n_books_for_adults = 104
+n_books_in_total = n_books_for_adults / percent_books_for_adults
+answer = n_books_in_total
+
+## Tyler has 21 CDs. He gives away a third of his CDs to his friend. Then he goes to the music store and buys 8 brand new CDs. How many CDs does Tyler have now?
+n_cds_tyler = 21
+percent_cds_given_away =  1.0 / 3.0
+n_cds_left_after_giving_away = n_cds_tyler - n_cds_tyler * percent_cds_given_away
+n_new_cds_purchased = 8
+n_cds_now = n_cds_left_after_giving_away + n_new_cds_purchased
+answer = n_cds_now

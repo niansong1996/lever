@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# defined by Ansong
+.vscode/
+data/
+analysis/
+results/
+model_ckpts/
+.DS_Store

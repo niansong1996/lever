@@ -1,0 +1,84 @@
+seed_everything: 333
+trainer:
+  gpus: 8
+  gradient_clip_val: 1.0
+  default_root_dir: &exp_name results/gsmath-incoder_6b-few_shot-pass_at_50-train-output_prob
+  val_check_interval: 1.0
+  max_steps: &max_steps 25000
+  num_sanity_val_steps: 0
+  log_every_n_steps: 1
+  logger+:
+    - class_path: finetuning.lightning_modules.patches.patched_loggers.PatchedWandbLogger
+      init_args:
+        entity: <your-user/org-name>
+        project: <your-project-name>
+        save_dir: *exp_name
+        name: *exp_name
+        log_model: False
+        save_code: True
+        offline: False
+        # offline: True
+  callbacks+:
+    - class_path: pytorch_lightning.callbacks.model_checkpoint.ModelCheckpoint
+      init_args:
+        monitor: pass@100
+        mode: max
+        filename: '{step}-{pass@100:.4f}-{exec_acc:.4f}'
+        save_top_k: 3
+        save_last: True
+    - class_path: pytorch_lightning.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: step
+    - class_path: pytorch_lightning.callbacks.progress.TQDMProgressBar
+      init_args:
+        refresh_rate: 1
+        
+  accelerator: gpu
+  # strategy: deepspeed_stage_2
+  strategy: ddp_find_unused_parameters_false
+  precision: 16
+  # accumulate_grad_batches: 2
+
+model:
+  class_path: lightning_modules.models.seq2seq_model.Seq2SeqModel
+  init_args:
+    transformer_model_name: &transformer Salesforce/codegen-16B-multi
+    executor_cls: execution.executors.MathExecutor
+    max_gen_len: 128
+    sampling_temp: 0.001
+    sampling_temp_at_k: 0.8
+    pass_at_k: 50
+    max_generation_batches: 5
+    gradient_ckpt: true
+    # eval_greedy_search: true
+    save_raw_generation_results: true
+    # print_eval_every_n_batches: 1
+    optimizer:
+      init_args: 
+        # lr: 5.0e-5
+        lr: 0.0
+        betas: 
+          - 0.9
+          - 0.999
+        eps: 1.0e-8
+        weight_decay: 0.1
+    lr_scheduler:
+      name: linear
+      init_args:
+        num_warmup_steps: 100
+        num_training_steps: *max_steps
+
+data:
+  class_path: lightning_modules.datasets.mathqa_reader.FewShotMathQADataModule
+  init_args:
+    transformer_model_name: *transformer
+    batch_size: 1
+    val_batch_size: 1
+    # train_max_instances: 100
+    # val_max_instances: 64
+    train_set_init_args:
+      file_path: stub.jsonl
+    val_set_init_args:
+      # prompt_examples: 4
+      file_path: data/gsmath/split_train.jsonl
+      prompt_file: prompt_files/cot_code_mwp_prompt_idiomatic_code.txt
