@@ -109,7 +109,12 @@ After obtaining the data and put them in the specific locations as described in 
 ```bash
 python finetuning/trainer.py validate --config finetuning/training_configs/verification/<dataset>_verification.yaml --trainer.accelerator gpu --trainer.gpus 1
 ```
+For example, it only takes ~7mins to run LEVER on Spider dev set on the *CPUs** of my M1 Max MacBook Pro, with the following command:
+```bash
+python finetuning/trainer.py validate --config finetuning/training_configs/verification/spider_verification.yaml --trainer.accelerator cpu --trainer.gpus 4 --data.val_batch_size 4
+```
 Of course, also feel free to modify the `yaml` config file directly, all the fields should be self-explanatory.
+> *: I can't get MPS to work with T5 models, if you know how to do it, please open an issue / PR.
 
 #### New LLMs
 To apply LEVER to new LLMs on existing datasets, for each example, you first need to sample candidate programs with the new LLMs. We have some example `yaml` on how you can do this for GSM8K for `Codex`, `InCoder` and `CodeGen` models in `finetuning/training_configs/few_shot/`.
